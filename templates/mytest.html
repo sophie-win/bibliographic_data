@@ -40,7 +40,7 @@
                 minLength: 2,
             }).autocomplete("instance")._renderItem = function (ul, item) {
                     return $("<li>")
-                        .append("<div> Hnin hsu <br>" + item.value + "</div>")
+                        .append("<div> " + item.node_type + " <br>" + item.value+ "</div>")
                         .appendTo(ul);
             };
 

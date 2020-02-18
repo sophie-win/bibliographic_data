@@ -42,7 +42,8 @@ def get_suggestions(request):
                 print(node_properties[found_property] + " node")
                 if node_type == 'Book':
                     if found_property != 'title':
-                        place_json = {'value': node_properties[found_property] + ', ' + node_properties['title']}
+                        data_value = node_properties[found_property] + ', ' + node_properties['title']
+                        place_json = {'value': data_value, 'node_type': node_type}
                         results.append(place_json)
                 for keyValue in node_properties:
                     # print(node_properties[keyValue])
