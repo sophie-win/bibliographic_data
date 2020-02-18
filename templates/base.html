@@ -1,0 +1,66 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/css/bootstrap.min.css" integrity="sha384-Zug+QiDoJOrZ5t4lssLdxGhVrurbmBWopoEl+M6BdEfwnCJZtKxi1KgxUyJq13dy" crossorigin="anonymous">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="//use.fontawesome.com/9ecd38a87f.css">
+
+    <!-- Custom styles for this template -->
+    <link href="{% static 'css/search.css' %}" rel="stylesheet">
+
+    <title>{% block head_title %}Paradise Papers Search{% endblock head_title %}</title>
+  <script> $(function() {
+    $("#places").autocomplete({
+      source: "/api/get_places/",
+      select: function (event, ui) { //item selected
+        AutoCompleteSelectHandler(event, ui)
+      },
+      minLength: 2,
+    });
+  });
+
+  function AutoCompleteSelectHandler(event, ui)
+  {
+    var selectedObj = ui.item;
+  }</script>
+  </head>
+  <body>
+    {% block content %}
+    {% endblock content %}
+
+    <!-- JavaScript Loading -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS, then KnowckoutJS -->
+    <script src="//code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
+    <script src="//maxcdn.bootstrapcdn.com/bootstrap/4.0.0-beta.3/js/bootstrap.min.js" integrity="sha384-a5N7Y/aK3qNeh15eJKGWxsqtnX/wWdSZSKp+81YjTmS15nvnvxKHuzaWwXHDli+4" crossorigin="anonymous"></script>
+    <script src='//ajax.aspnetcdn.com/ajax/knockout/knockout-3.4.2.js'></script>
+<link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/themes/smoothness/jquery-ui.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"> </script>
+    <!-- Search App JavaScript -->
+{#    <script src="{% static 'js/mockup_data.js' %}"></script>#}
+    <script src="{% static 'js/smoothscroll.js' %}"></script>
+    <script src="{% static 'js/search.js' %}"></script>
+  </body>
+<script> $(function() {
+    $("#places").autocomplete({
+      source: "/api/get_places/",
+      select: function (event, ui) { //item selected
+        AutoCompleteSelectHandler(event, ui)
+      },
+      minLength: 2
+
+    });
+  });
+
+  function AutoCompleteSelectHandler(event, ui)
+  {
+    var selectedObj = ui.item;
+  }</script>
+</html>

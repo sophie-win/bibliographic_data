@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>jQuery UI Autocomplete - Default functionality</title>
+    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="/resources/demos/style.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script>
+        $(function () {
+            var availableTags = [
+                "ActionScript",
+                "AppleScript",
+                "Asp",
+                "BASIC",
+                "C",
+                "C++",
+                "Clojure",
+                "COBOL",
+                "ColdFusion",
+                "Erlang",
+                "Fortran",
+                "Groovy",
+                "Haskell",
+                "Java",
+                "JavaScript",
+                "Lisp",
+                "Perl",
+                "PHP",
+                "Python",
+                "Ruby",
+                "Scala",
+                "Scheme"
+            ];
+            $("#tags").autocomplete({
+                {#source: availableTags,#}
+                source: '/api/get_suggestions/',
+                minLength: 2,
+            }).autocomplete("instance")._renderItem = function (ul, item) {
+                    return $("<li>")
+                        .append("<div> Hnin hsu <br>" + item.value + "</div>")
+                        .appendTo(ul);
+            };
+
+            function AutoCompleteSelectHandler(event, ui) {
+                var selectedObj = ui.item;
+            }
+        }); {# function #}
+
+            $(function () {
+                var projects = [{
+                    value: "jquery",
+                    label: "jQuery",
+                    desc: "the write less, do more, JavaScript library",
+                    icon: "jquery_32x32.png"
+                }, {
+                    value: "jquery-ui",
+                    label: "jQuery UI",
+                    desc: "the official user interface library for jQuery",
+                    icon: "jqueryui_32x32.png"
+                }, {
+                    value: "sizzlejs",
+                    label: "Sizzle JS",
+                    desc: "a pure-JavaScript CSS selector engine",
+                    icon: "sizzlejs_32x32.png"
+                }];
+
+                $("#project").autocomplete({
+                    minLength: 0,
+                    source: projects,
+                    focus: function (event, ui) {
+                        $("#project").val(ui.item.label);
+                        return false;
+                    },
+                    select: function (event, ui) {
+                        $("#project").val(ui.item.label);
+                        $("#project-id").val(ui.item.value);
+                        $("#project-description").html(ui.item.desc);
+                        $("#project-icon").attr("src", "images/" + ui.item.icon);
+
+                        return false;
+                    }
+                })
+                    .autocomplete("instance")._renderItem = function (ul, item) {
+                    return $("<li>")
+                        .append("<div>" + item.label + "<br>" + item.desc + "</div>")
+                        .appendTo(ul);
+                };
+            });
+    </script>
+</head>
+<body>
+
+<div class="ui-widget">
+    <input id="tags" placeholder="Searh Here...">
+
+    {#    <a href="{% url 'get_list' 'Article' %}">heys</a>#}
+</div>
+<br>
+<div id="project-label">Select a project (type "j" for a start):</div>
+<input id="project"/>
+<input type="hidden" id="project-id"/>
+<p id="project-description"></p>
+
+</body>
+</html>
+
+
+
