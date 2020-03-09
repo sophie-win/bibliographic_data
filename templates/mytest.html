@@ -4,12 +4,80 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>jQuery UI Autocomplete - Default functionality</title>
-    <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-    <link rel="stylesheet" href="/resources/demos/style.css">
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    {#    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>#}
+    <link rel="stylesheet" href="../static/css/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/css/font-awesome.min.css">
+    <link rel="stylesheet" href="../static/css/neo4jd3.css?v=0.0.1">
+    <style>
+        body,
+        html,
+        .neo4jd3 {
+            height: 100%;
+            overflow: hidden;
+        }
+    </style>
+    <script src="../static/js/d3.min.js"></script>
+    <script src="../static/js/neo4jd3.js?v=0.0.1'"></script>
     <script>
+        function init(data) {
+            var neo4jd3 = new Neo4jd3('#neo4jd3', {
+                highlight: [
+                    {
+                        class: 'Project',
+                        property: 'name',
+                        value: 'neo4jd3'
+                    }, {
+                        class: 'User',
+                        property: 'userId',
+                        value: 'eisman'
+                    }
+                ],
+                icons: {
+// //
+                },
+                images: {
+                    'Address': 'Apple',
+//                        'Api': 'img/twemoji/1f527.svg',
+                    'BirthDate': 'Apple',
+
+//                        'zoomFit': 'img/twemoji/2194.svg',
+//                        'zoomIn': 'img/twemoji/1f50d.svg',
+//                        'zoomOut': 'img/twemoji/1f50e.svg'
+                },
+                text: {
+                    'Cookie': "HELLO",
+                },
+                minCollision: 60,
+                nodeRadius: 25,
+                neo4jData: data,
+                onNodeDoubleClick: function (node) {
+                    switch (node.id) {
+                        case '25':
+                            // Google
+                            window.open(node.properties.url, '_blank');
+                            break;
+                        default:
+                            var maxNodes = 5,
+                                data = neo4jd3.randomD3Data(node, maxNodes);
+                            neo4jd3.updateWithD3Data(data);
+                            break;
+                    }
+                },
+                onRelationshipDoubleClick: function (relationship) {
+                    console.log('double click on relationship: ' + JSON.stringify(relationship));
+                },
+                zoomFit: true
+            });
+        }
+
+        {#window.onload = init;#}
+
         $(function () {
+
+            {#$("#includedContent").load("aa.html");#}
             var availableTags = [
                 "ActionScript",
                 "AppleScript",
@@ -37,75 +105,82 @@
             $("#tags").autocomplete({
                 {#source: availableTags,#}
                 source: '/api/get_suggestions/',
-                minLength: 2,
+                minLength: 1,
+                select: function (event, ui) {
+
+                    {#alert(ui.item.value)#}
+                    {#AutoCompleteSelectHandler(event, ui)#}
+                    GetJson(ui.item.name)
+                    {#$("#project").val(ui.item.label);#}
+                    {#$("#project-id").val(ui.item.value);#}
+                    {#$("#project-description").html(ui.item.desc);#}
+                    {#$("#project-icon").attr("src", "images/" + ui.item.icon);#}
+
+                    return true;
+                }
             }).autocomplete("instance")._renderItem = function (ul, item) {
-                    return $("<li>")
-                        .append("<div> " + item.node_type + " <br>" + item.value+ "</div>")
-                        .appendTo(ul);
+                return $("<li>")
+                    .append("<div> " + item.node_type + " <br>" + item.value + "</div>")
+                    .appendTo(ul);
             };
 
             function AutoCompleteSelectHandler(event, ui) {
                 var selectedObj = ui.item;
+                alert(selectedObj.value)
+
             }
-        }); {# function #}
 
-            $(function () {
-                var projects = [{
-                    value: "jquery",
-                    label: "jQuery",
-                    desc: "the write less, do more, JavaScript library",
-                    icon: "jquery_32x32.png"
-                }, {
-                    value: "jquery-ui",
-                    label: "jQuery UI",
-                    desc: "the official user interface library for jQuery",
-                    icon: "jqueryui_32x32.png"
-                }, {
-                    value: "sizzlejs",
-                    label: "Sizzle JS",
-                    desc: "a pure-JavaScript CSS selector engine",
-                    icon: "sizzlejs_32x32.png"
-                }];
+            function GetJson(term) {
+                // Send an AJAX request
+                $.ajax({
+                    type: "GET",
+                    url: "api/get_json_data/",
+                    data: {'term': term},
+                    contentType: "application/json; charset=utf-8",
+                    success: function (response) {
+                        {#var data = response;#}
+                        {##}
+                        {#var parsed = JSON.parse(data);#}
+                        {#var data = jQuery.parseJSON(response);#}
+                        alert(JSON.stringify(response));
+                        {#init(JSON.stringify(response));#}
+                        {#alert(response)#}
+                        {#var data = {"results": [{"data": [{"graph": {"relationships": [{"startNode": 2, "type": "WRITES", "endNode": 2864}], "nodes": [{"id": 2864, "labels": ["Book"], "properties": {"volume_no": "", "issue_no": "", "no_of_author": "2", "year": "2018", "publication": "ACS nano", "name": "Announcing the 2018 ACS Nano Lectureship Awards", "publish_phase": "Final", "book_id": "2-s2.0-85042685102", "literature_type": "Article", "labels": ["Book"], "doi": "10.1021/acsnano.8b00282"}}, {"id": 2, "labels": ["Author"], "properties": {"name": "Fernandez, L.E", "labels": ["Author"]}}]}}]}]};#}
+                        init(response)
 
-                $("#project").autocomplete({
-                    minLength: 0,
-                    source: projects,
-                    focus: function (event, ui) {
-                        $("#project").val(ui.item.label);
-                        return false;
                     },
-                    select: function (event, ui) {
-                        $("#project").val(ui.item.label);
-                        $("#project-id").val(ui.item.value);
-                        $("#project-description").html(ui.item.desc);
-                        $("#project-icon").attr("src", "images/" + ui.item.icon);
-
-                        return false;
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        alert(xhr.status + thrownError.toString());
+                        {#alert(thrownError.stackTrace);#}
                     }
-                })
-                    .autocomplete("instance")._renderItem = function (ul, item) {
-                    return $("<li>")
-                        .append("<div>" + item.label + "<br>" + item.desc + "</div>")
-                        .appendTo(ul);
-                };
-            });
+                });
+            }
+        });
+        {# function #}
+
+
     </script>
 </head>
 <body>
 
-<div class="ui-widget">
-    <input id="tags" placeholder="Searh Here...">
-
-    {#    <a href="{% url 'get_list' 'Article' %}">heys</a>#}
+{#<div id="includedContent"></div>#}
+<div class="form-row">
+    <div class="col">
+        <input type="text" class="w-100 form-control-xs-lg search-input" id="tags" name="term"
+               placeholder="hey Search...">
+    </div>
 </div>
+{#<div class="ui-widget">#}
+{#    <input id="tags" placeholder="Searh Here...">#}
+{##}
+{#    <a href="{% url 'get_list' 'Article' %}">heys</a>#}
+{#</div>#}
 <br>
-<div id="project-label">Select a project (type "j" for a start):</div>
-<input id="project"/>
-<input type="hidden" id="project-id"/>
-<p id="project-description"></p>
 
+
+<div id="neo4jd3"></div>
 </body>
 </html>
 
 
-
+{#                neo4jDataUrl: 'json/dd.json',#}

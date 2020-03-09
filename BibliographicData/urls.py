@@ -27,6 +27,7 @@ urlpatterns = [
     url(r'^fetch/', include(('fetch_api.urls', 'fetch_api'), namespace='fetch_api')),
     url(r'^api/get_suggestions/', views.get_suggestions),
     url(r'^test', TemplateView.as_view(template_name='mytest.html'), name='mytest'),
-
-    url(r'^api/get_list/<string:query>', views.get_list, name='get_list'),
+    url(r'^hnin', TemplateView.as_view(template_name='visualize_data.html'), name='visualize_data'),
+    url(r'^api/get_list/', views.get_list),
+    url(r'^api/get_json_data/', views.get_json_data),
 ]

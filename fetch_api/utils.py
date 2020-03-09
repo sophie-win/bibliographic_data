@@ -69,7 +69,7 @@ def filter_countries(a):
     match (n) 
     with n, [x in keys(n) WHERE n[x]=~'{a}.*'] as doesMatch
     where size(doesMatch) > 0
-    return n + doesMatch as countries limit 3
+    return n + doesMatch as countries limit 10
     '''
     results = {}
     print(query2)
@@ -92,6 +92,48 @@ def filter_countries(a):
     # for x in node.labels:
     #     print(x)
 
+    return results
+
+
+def book_and_author(a):
+    query = f'''match (a:Book)-[r]-(b:Author) where a.title = '{a}' return a, b'''
+
+    results = {}
+    results = db.cypher_query(query)[0]
+    return results
+
+def json_api_call(q_data):
+    a = '{maxLevel:2}'
+    b = '{.*, label:labels(node)[0]}'
+    c = ' {.*, fromNode:{label:'
+    d = '}, toNode:{label:labels(endNode(rel))[0], id:endNode(rel).id}}'
+    e = '{nodes:nodes, relationships:rels}'
+    query = f'''
+    MATCH (n) 
+    WHERE n.name = 'htet'
+    CALL apoc.path.subgraphAll(n, {a}) YIELD nodes, relationships
+    WITH [node in nodes | node {b}] as nodes, 
+    [rel in relationships | rel {c}labels(startNode(rel))[0], id:startNode(rel).id {d}] as rels
+    WITH {e} as json
+    RETURN apoc.convert.toJson(json)
+    '''
+    s1 = '{maxLevel:2}'
+    s2 = '{.*, id:node.id,labels:[labels(node)[0]]}'
+    s3 = '{ .*,type: type(rel), startNode:startNode(rel).id , endNode:endNode(rel).id}'
+    s4 = '{nodes:nodes, relationships:rels}'
+    query_str = f'''
+            MATCH (n) 
+            WHERE n.name = '{q_data}'
+            CALL apoc.path.subgraphAll(n, {s1}) YIELD nodes, relationships
+            WITH [node in nodes | node {s2}] as nodes, 
+            [rel in relationships | rel  
+            {s3}] as rels
+            WITH {s4} as json
+            RETURN apoc.convert.toJson(json)
+            '''
+    print(query_str)
+    results = {}
+    results = db.cypher_query(query_str)[0]
     return results
 
 
