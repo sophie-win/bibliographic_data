@@ -5,10 +5,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from neomodel import Q
 
-from . import my_dict
-from .models import Country
-from .positional_intersect import run_test
-from .skip_pointer import intersection_with_skips
+
 from .utils import (fetch_nodes, fetch_countries, filter_countries, json_api_call, book_and_author)
 
 from rest_framework.views import APIView
@@ -17,7 +14,7 @@ import json
 
 
 def get_suggestions(request):
-    # first_posting_list = [1,2,3,4,8,16,19,23,28,43,88,99,120,135]
+    # first_posting_list = [1,2,3,4,8,16,19,23,28,43,88,99,120,135, 165]
     # second_posting_list = [1, 2, 3,4, 5, 8, 41, 51, 60, 71, 88,99,100,101,102,103,104,105,135,140,155,160]
     # print('list created')
     # result = intersection_with_skips(first_posting_list, second_posting_list)
@@ -55,13 +52,13 @@ def get_suggestions(request):
                 # if node_properties[node_type]
                 found_property = node[0][1]
                 print(node_properties[found_property] + " node")
-                if node_type == 'Book':
-                    if found_property != 'name':
-                        data_value = node_properties[found_property] + ', ' + node_properties['name']
-                    else:
-                        data_value = node_properties['name']
-                    place_json = {'value': data_value, 'node_type': node_type, 'name': node_properties['name']}
-                    results.append(place_json)
+                # if node_type == 'Book':
+                if found_property != 'name':
+                    data_value = node_properties[found_property] + ', ' + node_properties['name']
+                else:
+                    data_value = node_properties['name']
+                place_json = {'value': data_value, 'node_type': node_type, 'name': node_properties['name']}
+                results.append(place_json)
                 for keyValue in node_properties:
                     # print(node_properties[keyValue])
 
