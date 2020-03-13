@@ -86,7 +86,10 @@ DATABASES = {
 }
 
 #Connect to Neo4j Database
-config.DATABASE_URL = 'bolt://neo4j:root@localhost:7687'
+# config.DATABASE_URL = 'bolt://neo4j:root@localhost:7687'
+# config.DATABASE_URL = 'bolt://neo4j:test@159.89.205.73:7687'
+config.DATABASE_URL = 'bolt://neo4j:root@157.230.249.201:7687'
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
@@ -168,3 +171,6 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 # ALLOWED_HOSTS = ['paradise-papers-django.herokuapp.com', '10.0.0.72']
 
 ALLOWED_HOSTS = ['127.0.0.1']
+
+
+
