@@ -291,7 +291,7 @@
                         })
                         .html(function (d) {
                             var _icon = icon(d);
-                            return _icon ? '&#x' + _icon : d.properties.name;
+                            return _icon ? '&#x' + _icon : d.properties.name_abbr;
                         });
                 }
 
@@ -1592,6 +1592,7 @@
 
                     s += ')';
 
+
                     return s;
                 }
 
@@ -1629,10 +1630,13 @@
                         appendInfoElementRelationship('class', d.type);
                     }
 
-                    appendInfoElementProperty('property', '&lt;id&gt;', d.id);
+                    // appendInfoElementProperty('property', '&lt;id&gt;', d.id);
 
                     Object.keys(d.properties).forEach(function (property) {
-                        appendInfoElementProperty('property', property, JSON.stringify(d.properties[property]));
+                        var show_data = JSON.stringify(d.properties[property]);
+                        if (property.toString() != "labels" && property.toString() != "name_abbr"){
+                            appendInfoElementProperty('property', property, show_data);
+                        }
                     });
                 }
 

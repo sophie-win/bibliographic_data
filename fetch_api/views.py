@@ -1,4 +1,5 @@
 import json
+import re
 
 import neo4j
 from django.http import HttpResponse
@@ -51,9 +52,10 @@ def get_suggestions(request):
                 node_properties = _get_node_properties(node[0][0])
                 # if node_properties[node_type]
                 found_property = node[0][1]
-                print(node_properties[found_property] + " node")
+                print(node_properties[found_property] + " node", found_property)
                 # if node_type == 'Book':
                 if found_property != 'name':
+                    print('name')
                     data_value = node_properties[found_property] + ', ' + node_properties['name']
                 else:
                     data_value = node_properties['name']
@@ -87,7 +89,9 @@ def get_json_data(request):
         print("ajax correct")
         query_str = request.GET.get('term', '')
         # print("term is " + q)
-        datas = json_api_call(query_str)
+        query_data = re.sub(r"'", "\\'", query_str)
+
+        datas = json_api_call(query_data)
 
         # print('j_term', query_str)
         # print('type hey', datas)
@@ -113,6 +117,17 @@ def get_json_data(request):
                         if key != 'label' and key != 'id':
                             # properties += key + ":" + n[key] + ","
                             properties[key] = n[key]
+                        if key == 'name':
+                            # name = n[key].split()[0]
+                            # if len(name) < 8:
+                            #     name_abbr = name + '\n' + n[key].split()[1]
+                            #     print(name_abbr)
+                            #
+                            # else:
+                            name_abbr = n[key][:8] + '..'
+                                # print(name_abbr)
+                            # print(name_abbr)
+                            properties['name_abbr'] = name_abbr
                     node["properties"] = properties
 
                     new_nodes_list.append(node)
@@ -130,9 +145,9 @@ def get_json_data(request):
         print("fail")
         data = 'fail'
     mime_type = 'application/json'
-    f = open("templates/json/dd.json", "w")
-    f.write(my_data)
-    f.close()
+    # f = open("templates/json/dd.json", "w")
+    # f.write(my_data)
+    # f.close()
     # print(my_dict(my_data))
     # print(HttpResponse(data, mime_type).getvalue())
     return HttpResponse(my_data, mime_type)
