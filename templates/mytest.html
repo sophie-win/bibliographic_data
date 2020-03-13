@@ -53,24 +53,27 @@
                 minCollision: 60,
                 nodeRadius: 25,
                 neo4jData: data,
-                onNodeDoubleClick: function (node) {
-                    switch (node.id) {
-                        case '25':
-                            // Google
-                            window.open(node.properties.url, '_blank');
-                            break;
-                        default:
-                            var maxNodes = 5,
-                                data = neo4jd3.randomD3Data(node, maxNodes);
-                            neo4jd3.updateWithD3Data(data);
-                            break;
-                    }
-                },
-                onRelationshipDoubleClick: function (relationship) {
-                    console.log('double click on relationship: ' + JSON.stringify(relationship));
-                },
-                zoomFit: true
-            });
+                zoomFit: false,
+
+            {#onNodeDoubleClick: function (node) {#}
+            {#    switch (node.id) {#}
+            {#        case '25':#}
+            {#            // Google#}
+            {#            window.open(node.properties.url, '_blank');#}
+            {#            break;#}
+            {#        default:#}
+            {#            var maxNodes = 5,#}
+            {#                data = neo4jd3.randomD3Data(node, maxNodes);#}
+            {#            neo4jd3.updateWithD3Data(data);#}
+            {#            break;#}
+            {#    }#}
+            {#},#}
+                {#onRelationshipDoubleClick: function (relationship) {#}
+                {#    console.log('double click on relationship: ' + JSON.stringify(relationship));#}
+                {#},#}
+                }
+            )
+            ;
         }
 
         {#window.onload = init;#}
@@ -142,7 +145,7 @@
                         {##}
                         {#var parsed = JSON.parse(data);#}
                         {#var data = jQuery.parseJSON(response);#}
-                        alert(JSON.stringify(response));
+                        {#alert(JSON.stringify(response));#}
                         {#init(JSON.stringify(response));#}
                         {#alert(response)#}
                         {#var data = {"results": [{"data": [{"graph": {"relationships": [{"startNode": 2, "type": "WRITES", "endNode": 2864}], "nodes": [{"id": 2864, "labels": ["Book"], "properties": {"volume_no": "", "issue_no": "", "no_of_author": "2", "year": "2018", "publication": "ACS nano", "name": "Announcing the 2018 ACS Nano Lectureship Awards", "publish_phase": "Final", "book_id": "2-s2.0-85042685102", "literature_type": "Article", "labels": ["Book"], "doi": "10.1021/acsnano.8b00282"}}, {"id": 2, "labels": ["Author"], "properties": {"name": "Fernandez, L.E", "labels": ["Author"]}}]}}]}]};#}
@@ -164,21 +167,27 @@
 <body>
 
 {#<div id="includedContent"></div>#}
-<div class="form-row">
-    <div class="col">
-        <input type="text" class="w-100 form-control-xs-lg search-input" id="tags" name="term"
-               placeholder="hey Search...">
-    </div>
-</div>
-{#<div class="ui-widget">#}
-{#    <input id="tags" placeholder="Searh Here...">#}
+{#<div class="tab-content">#}
+{#    <div class="tab-pane fade">#}
+        <div class="form-row">
+            <div class="col">
+                <input type="text" class="w-100 form-control-xs-lg search-input" id="tags" name="term"
+                       placeholder="Search Here..."
+                       style="width: 95%; padding:10px; margin-top: 50px; margin-left: 10px; margin-right: 10px">
+            </div>
+        </div>
+        {#<div class="ui-widget">#}
+        {#    <input id="tags" placeholder="Searh Here...">#}
+        {##}
+        {#    <a href="{% url 'get_list' 'Article' %}">heys</a>#}
+        {#</div>#}
+        <br>
+
+
+        <div id="neo4jd3"></div>
+{#    </div>#}
 {##}
-{#    <a href="{% url 'get_list' 'Article' %}">heys</a>#}
 {#</div>#}
-<br>
-
-
-<div id="neo4jd3"></div>
 </body>
 </html>
 
