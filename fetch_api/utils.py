@@ -103,6 +103,10 @@ def book_and_author(a):
     return results
 
 def json_api_call(q_data):
+    print(q_data)
+    my = 'hnin\'hus'
+    z = my.replace('\'', 'e')
+    print(z)
     a = '{maxLevel:2}'
     b = '{.*, label:labels(node)[0]}'
     c = ' {.*, fromNode:{label:'
@@ -132,8 +136,9 @@ def json_api_call(q_data):
             RETURN apoc.convert.toJson(json)
             '''
     print(query_str)
-    results = {}
+    # results = {}
     results = db.cypher_query(query_str)[0]
+    # print(results)
     return results
 
 
