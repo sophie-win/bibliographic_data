@@ -67,7 +67,7 @@ def fetch_countries():
 def filter_countries(a):
     query2 = f'''
     match (n) 
-    with n, [x in keys(n) WHERE n[x]=~'{a}.*'] as doesMatch
+    with n, [x in keys(n) WHERE n[x]=~'{a}.*' and NOT n:Person] as doesMatch
     where size(doesMatch) > 0
     return n + doesMatch as countries limit 10
     '''
@@ -102,32 +102,34 @@ def book_and_author(a):
     results = db.cypher_query(query)[0]
     return results
 
-def json_api_call(q_data):
-    print(q_data)
-    my = 'hnin\'hus'
-    z = my.replace('\'', 'e')
-    print(z)
+def sample_data():
+
     a = '{maxLevel:2}'
     b = '{.*, label:labels(node)[0]}'
     c = ' {.*, fromNode:{label:'
     d = '}, toNode:{label:labels(endNode(rel))[0], id:endNode(rel).id}}'
     e = '{nodes:nodes, relationships:rels}'
-    query = f'''
-    MATCH (n) 
-    WHERE n.name = 'htet'
-    CALL apoc.path.subgraphAll(n, {a}) YIELD nodes, relationships
+    query = f'''match (a:Publisherhey)-[rs]-(b:Journal) where a.name = 'Publisher'
+ CALL apoc.path.subgraphAll(a, {a}) YIELD nodes, relationships
     WITH [node in nodes | node {b}] as nodes, 
     [rel in relationships | rel {c}labels(startNode(rel))[0], id:startNode(rel).id {d}] as rels
     WITH {e} as json
     RETURN apoc.convert.toJson(json)
     '''
-    s1 = '{maxLevel:2}'
+
+    results = {}
+    print(query)
+    results = db.cypher_query(query)[0]
+    return results
+
+def json_api_call(q_data):
+    s1 = '{maxLevel:2, limit:30}'
     s2 = '{.*, id:node.id,labels:[labels(node)[0]]}'
-    s3 = '{ .*,type: type(rel), startNode:startNode(rel).id , endNode:endNode(rel).id}'
+    s3 = '{ .*,type: type(rel), startNode:startNode(rel).id , endNode:endNode(rel).id, id: ID(rel)}'
     s4 = '{nodes:nodes, relationships:rels}'
     query_str = f'''
             MATCH (n) 
-            WHERE n.name = '{q_data}'
+            WHERE n.name = '{q_data}' and NOT n:Person
             CALL apoc.path.subgraphAll(n, {s1}) YIELD nodes, relationships
             WITH [node in nodes | node {s2}] as nodes, 
             [rel in relationships | rel  
@@ -141,6 +143,63 @@ def json_api_call(q_data):
     # print(results)
     return results
 
+def get_nodes_and_relationships(node_id):
+    s1 = '{maxLevel:1, limit:30}'
+    s2 = '{.*, id:node.id,labels:[labels(node)[0]]}'
+    s3 = '{ .*,type: type(rel), startNode:startNode(rel).id , endNode:endNode(rel).id, id: ID(rel)}'
+    s4 = '{nodes:nodes, relationships:rels}'
+    query_str = f'''
+            MATCH (n) 
+            WHERE n.id = {node_id} and NOT n:Person
+            CALL apoc.path.subgraphAll(n, {s1}) YIELD nodes, relationships
+            WITH [node in nodes | node {s2}] as nodes, 
+            [rel in relationships | rel  
+            {s3}] as rels
+            WITH {s4} as json
+            RETURN apoc.convert.toJson(json)
+            '''
+    print(query_str)
+    # results = {}
+    results = db.cypher_query(query_str)[0]
+    # print(results)
+    return results
+
+def family_tree_json_api_call(q_data):
+    s1 = '{maxLevel:2}'
+    s2 = '{.*, id:node.id,labels:[labels(node)[0]]}'
+    s3 = '{ .*,type: type(rel), startNode:startNode(rel).id , endNode:endNode(rel).id}'
+    s4 = '{nodes:nodes, relationships:rels}'
+    query = f'''MATCH (n:Person) 
+                WHERE n.name = '{q_data}'
+                CALL apoc.path.subgraphAll(n, {s1}) YIELD nodes, relationships
+                WITH [node in nodes | node {s2}] as nodes
+                , 
+                [rel in relationships | rel  
+                {s3}] as rels
+                WITH {s4} as json
+                RETURN apoc.convert.toJson(json)'''
+    print(query)
+    # results = {}
+    results = db.cypher_query(query)[0]
+    # print(results)
+    return results
+
+
+def family_tree_normal(q_data):
+    query = f'''MATCH (n:Person)-[rs:Rs]-(m:Person)
+                WHERE n.name = '{q_data}' and n.generation <= m.generation  
+                return n,rs,m'''
+    print(query)
+    results = db.cypher_query(query)[0]
+    return results
+
+def family_tree_child(q_data):
+    query = f'''MATCH (n:Person)-[rs:Rs]-(m:Person)
+                WHERE n.name = '{q_data}' and n.generation < m.generation  
+                return n,rs,m'''
+    print(query)
+    results = db.cypher_query(query)[0]
+    return results
 
 def _get_node_properties(node):
     """Get the properties from a neo4j.v1.types.graph.Node object."""

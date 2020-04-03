@@ -26,8 +26,13 @@ urlpatterns = [
     url(r'^$', TemplateView.as_view(template_name='mytest.html'), name='index'),
     url(r'^fetch/', include(('fetch_api.urls', 'fetch_api'), namespace='fetch_api')),
     url(r'^api/get_suggestions/', views.get_suggestions),
-    url(r'^test', TemplateView.as_view(template_name='detail.html'), name='mytest'),
+    # url(r'^test', TemplateView.as_view(template_name='data_sample_test.html'), name='mytest'),
+    url(r'^test', TemplateView.as_view(template_name='family.html'), name='mytest'),
     url(r'^hnin', TemplateView.as_view(template_name='visualize_data.html'), name='visualize_data'),
     url(r'^api/get_list/', views.get_list),
     url(r'^api/get_json_data/', views.get_json_data),
+    url(r'^api/get_family_tree/', views.get_family_tree),
+    url(r'^api/get_family_tree_first_gen/', views.get_family_tree_first_gen),
+    url(r'^api/get_sample_data/', views.get_sample_data),
+    url(r'^api/expand_more/', views.get_node_relationships)
 ]

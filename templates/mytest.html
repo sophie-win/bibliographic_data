@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>jQuery UI Autocomplete - Default functionality</title>
+    <title>Publication Graphs</title>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
@@ -19,60 +19,134 @@
             overflow: hidden;
         }
     </style>
+
     <script src="../static/js/d3.min.js"></script>
     <script src="../static/js/neo4jd3.js?v=0.0.1'"></script>
     <script>
         function init(data) {
             var neo4jd3 = new Neo4jd3('#neo4jd3', {
-                highlight: [
-                    {
-                        class: 'Project',
-                        property: 'name',
-                        value: 'neo4jd3'
-                    }, {
-                        class: 'User',
-                        property: 'userId',
-                        value: 'eisman'
-                    }
-                ],
-                icons: {
+                    icons: {
 // //
-                },
-                images: {
-                    'Address': 'Apple',
+                    },
+                    images: {
+                        'Address': 'Apple',
 //                        'Api': 'img/twemoji/1f527.svg',
-                    'BirthDate': 'Apple',
+                        'BirthDate': 'Apple',
+                    },
+                    text: {
+                        'Cookie': "HELLO",
+                    },
+                    minCollision: 60,
+                    nodeRadius: 25,
+                    neo4jData: data,
+                    zoomFit: false,
+                    onNodeDoubleClick: function (node) {
+                        $.ajax({
+                            type: "GET",
+                            url: "api/expand_more/",
+                            data: {'node_id': node.id},
+                            contentType: "application/json; charset=utf-8",
+                            success: function (response) {
+                                {#alert(JSON.stringify(response));#}
+                                var d3_data = neo4jd3.neo4jDataToD3Data(response);
+                                {#random_data = neo4jd3.randomD3Data(node, 5)#}
+                                var nodes = d3_data.nodes;
+                                var relationships = d3_data.relationships;
+                                {#alert("hek " + JSON.stringify(d3_data) )#}
 
-//                        'zoomFit': 'img/twemoji/2194.svg',
-//                        'zoomIn': 'img/twemoji/1f50d.svg',
-//                        'zoomOut': 'img/twemoji/1f50e.svg'
-                },
-                text: {
-                    'Cookie': "HELLO",
-                },
-                minCollision: 60,
-                nodeRadius: 25,
-                neo4jData: data,
-                zoomFit: false,
+                                var del_index = [], del_rs_indexes = [];
+                                data.results.forEach(function (result) {
+                                    result.data.forEach(function (d) {
+                                        nodes.forEach(function (return_node) {
+                                            var actual_index = d.graph.nodes.findIndex(data => data.id === return_node.id);
+                                            {#alert(actual_index + " " + return_node.id)#}
+                                            if (actual_index >= 0) {
+                                                var index = nodes.findIndex(n => n.id === return_node.id);
+                                                del_index.push(index);
 
-            {#onNodeDoubleClick: function (node) {#}
-            {#    switch (node.id) {#}
-            {#        case '25':#}
-            {#            // Google#}
-            {#            window.open(node.properties.url, '_blank');#}
-            {#            break;#}
-            {#        default:#}
-            {#            var maxNodes = 5,#}
-            {#                data = neo4jd3.randomD3Data(node, maxNodes);#}
-            {#            neo4jd3.updateWithD3Data(data);#}
-            {#            break;#}
-            {#    }#}
-            {#},#}
-                {#onRelationshipDoubleClick: function (relationship) {#}
-                {#    console.log('double click on relationship: ' + JSON.stringify(relationship));#}
-                {#},#}
+                                            } else {
+                                                d.graph.nodes.push(return_node);
+                                                {#alert('push' + JSON.stringify(return_node))#}
+                                            }
+
+                                        });
+                                        relationships.forEach(function (rs) {
+                                            var rs_actual_index = d.graph.relationships.findIndex(rel => rel.id === rs.id);
+                                            if (rs_actual_index >=0 ){
+                                                var rs_index = relationships.findIndex(r => r.id === rs.id);
+                                                del_rs_indexes.push(rs_index);
+                                            } else {
+                                                d.graph.relationships.push(rs);
+                                            }
+                                        });
+
+                                    });
+                                });
+
+
+//to eliminate the null value from deleted node
+                                {#alert(del_index)#}
+                                for (i = 0; i < del_index.length; i++) {
+                                    delete nodes[del_index[i]];
+                                    {#alert(nodes[del_index[i]]);#}
+                                }
+
+                                for (i = 0; i < del_rs_indexes.length; i++) {
+                                    delete relationships[del_rs_indexes[i]];
+                                    {#alert(nodes[del_index[i]]);#}
+                                }
+
+                                const j = JSON.stringify(d3_data, (k, v) => Array.isArray(v)
+                                && !(v = v.filter(e => e)).length ? void 0 : v, 2);
+                                {#alert(j)#}
+
+                                {#document.getElementById("return_data").innerText = j;#}
+                                neo4jd3.updateWithD3Data(JSON.parse(j))
+                            },
+                            error: function (xhr, ajaxOptions, thrownError) {
+                                alert(xhr.status + thrownError.toString());
+                                {#alert(thrownError.stackTrace);#}
+                            }
+                        });
+                        var dd = {
+                            "results": [{
+                                "data": [{
+                                    "graph": {
+                                        "relationships": [{
+                                            "startNode": node.id,
+                                            "id": 12 + node.id,
+                                            "type": "OWNS",
+                                            "endNode": 10000
+                                        }],
+                                        "nodes": [{
+                                            "id": node.id,
+                                            "labels": [node.labels],
+                                            "properties": node.properties
+                                        }, {
+                                            "id": "10000",
+                                            "labels": ["Publication"],
+                                            "properties": {
+                                                "name_abbr": "Htet Aung",
+                                            }
+                                        }, {
+                                            "id": "2452",
+                                            "labels": ["Device"],
+                                            "properties": {
+                                                "name_abbr": "eisman"
+                                            }
+                                        }]
+                                    }
+                                }]
+                            }]
+                        };
+
+                        {#neo4jd3.updateWithD3Data(random_data)#}
+                    },
+                    onRelationshipDoubleClick: function (relationship) {
+                        console.log('double click on relationship: ' + JSON.stringify(relationship));
+                    },
                 }
-            )
+                )
             ;
         }
 
@@ -81,30 +155,7 @@
         $(function () {
 
             {#$("#includedContent").load("aa.html");#}
-            var availableTags = [
-                "ActionScript",
-                "AppleScript",
-                "Asp",
-                "BASIC",
-                "C",
-                "C++",
-                "Clojure",
-                "COBOL",
-                "ColdFusion",
-                "Erlang",
-                "Fortran",
-                "Groovy",
-                "Haskell",
-                "Java",
-                "JavaScript",
-                "Lisp",
-                "Perl",
-                "PHP",
-                "Python",
-                "Ruby",
-                "Scala",
-                "Scheme"
-            ];
+
             $("#tags").autocomplete({
                 {#source: availableTags,#}
                 source: '/api/get_suggestions/',
@@ -165,31 +216,38 @@
     </script>
 </head>
 <body>
+<div class="container">
+  <h2>Dynamic Pills</h2>
+  <p>To make the tabs toggleable, add the data-toggle="pill" attribute to each link. Then add a .tab-pane class with a unique ID for every tab and wrap them inside a div element with class .tab-content.</p>
+  <ul class="nav nav-pills">
+    <li class="active"><a data-toggle="pill" href="#home">Home</a></li>
+    <li><a data-toggle="pill" href="#menu1">Menu 1</a></li>
+    <li><a data-toggle="pill" href="#menu2">Menu 2</a></li>
+    <li><a data-toggle="pill" href="#menu3">Menu 3</a></li>
+  </ul>
 
 {#<div id="includedContent"></div>#}
 {#<div class="tab-content">#}
 {#    <div class="tab-pane fade">#}
-        <div class="form-row">
-            <div class="col">
-                <input type="text" class="w-100 form-control-xs-lg search-input" id="tags" name="term"
-                       placeholder="Search Here..."
-                       style="width: 95%; padding:10px; margin-top: 50px; margin-left: 10px; margin-right: 10px">
-            </div>
-        </div>
-        {#<div class="ui-widget">#}
-        {#    <input id="tags" placeholder="Searh Here...">#}
-        {##}
-        {#    <a href="{% url 'get_list' 'Article' %}">heys</a>#}
-        {#</div>#}
-        <br>
+<div class="form-row">
+    <div class="col">
+        <input type="text" class="w-100 form-control-xs-lg search-input" id="tags" name="term"
+               placeholder="Search Here..."
+               style="width: 95%; padding:10px; margin-top: 50px; margin-left: 10px; margin-right: 10px">
+    </div>
+</div>
+{#<div class="ui-widget">#}
+{#    <input id="tags" placeholder="Searh Here...">#}
+{##}
+{#    <a href="{% url 'get_list' 'Article' %}">heys</a>#}
+{#</div>#}
+<br>
+{#<p id="return_data">hello</p>#}
 
 
-        <div id="neo4jd3"></div>
+<div id="neo4jd3"></div>
 {#    </div>#}
 {##}
 {#</div>#}
 </body>
 </html>
-
-
-{#                neo4jDataUrl: 'json/dd.json',#}

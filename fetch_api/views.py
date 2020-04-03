@@ -6,25 +6,16 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from neomodel import Q
 
-
-from .utils import (fetch_nodes, fetch_countries, filter_countries, json_api_call, book_and_author)
+from .utils import (fetch_nodes, fetch_countries, filter_countries, json_api_call, book_and_author,
+                    family_tree_json_api_call, family_tree_normal, family_tree_child, sample_data,
+                    get_nodes_and_relationships)
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
 import json
-
+import yaml
 
 def get_suggestions(request):
-    # first_posting_list = [1,2,3,4,8,16,19,23,28,43,88,99,120,135, 165]
-    # second_posting_list = [1, 2, 3,4, 5, 8, 41, 51, 60, 71, 88,99,100,101,102,103,104,105,135,140,155,160]
-    # print('list created')
-    # result = intersection_with_skips(first_posting_list, second_posting_list)
-    # mylist = ["hello", "world"]
-    # print('my first ', first_posting_list[0])
-    # print(result)
-    # run_test()
-    # print(a[1] + ' a')
-    # print(result)
     print("hey")
     if request.is_ajax():
         term = request.GET.get('term', '')
@@ -80,6 +71,384 @@ def get_suggestions(request):
 
 
 def get_json_data(request):
+
+    if request.is_ajax():
+        query_str = request.GET.get('term', '')
+        query_data = re.sub(r"'", "\\'", query_str)
+
+        datas = json_api_call(query_data)
+
+        for data in datas:
+            for r in data:
+                # print('printloop', type(r), r)
+                print(data)
+                j_data = json.loads(r)
+                # print('data_type', type(j_data))
+                nodes = j_data['nodes']
+                # print('hey', type(nodes))
+                del j_data['nodes']
+                # print('j', str(j_data))
+                new_nodes_list = []
+                for n in nodes:
+                    node = {"id": n["id"], "labels": n["labels"]}
+                    properties = {}
+                    # print('s', str(node))
+                    for key in n:
+                        if key != 'label' and key != 'id':
+                            # properties += key + ":" + n[key] + ","
+                            properties[key] = n[key]
+                        if key == 'name':
+                            # name = n[key].split()[0]
+                            # if len(name) < 8:
+                            #     name_abbr = name + '\n' + n[key].split()[1]
+                            #     print(name_abbr)
+                            #
+                            # else:
+                            name_abbr = n[key][:8] + '..'
+                            # print(name_abbr)
+                            # print(name_abbr)
+                            properties['name_abbr'] = name_abbr
+                    node["properties"] = properties
+
+                    new_nodes_list.append(node)
+                    # print(type(node))
+                j_data["nodes"] = new_nodes_list
+                # h_d = json.loads(str(j_data))
+                # print('ty', str(h_d) )
+        required_data_data = {'data': [{'graph': j_data}]}
+        required_data = {'results': [required_data_data]}
+        # print('h', j_data)
+        my_data = json.dumps(required_data)
+        # print('d')
+
+    else:
+        print("fail")
+        data = 'fail'
+        print("ajax correct")
+        query_str = request.GET.get('term', '')
+        # print("term is " + q)
+        query_data = re.sub(r"'", "\\'", query_str)
+
+        datas = json_api_call(query_data)
+
+        # print('j_term', query_str)
+        # print('type hey', datas)
+        results = []
+        # print('length', len(datas))
+
+        for data in datas:
+            for r in data:
+                # print('printloop', type(r), r)
+                print(data)
+                j_data = json.loads(r)
+                # print('data_type', type(j_data))
+                nodes = j_data['nodes']
+                # print('hey', type(nodes))
+                del j_data['nodes']
+                # print('j', str(j_data))
+                new_nodes_list = []
+                for n in nodes:
+                    node = {"id": n["id"], "labels": n["labels"]}
+                    properties = {}
+                    # print('s', str(node))
+                    for key in n:
+                        if key != 'label' and key != 'id':
+                            # properties += key + ":" + n[key] + ","
+                            properties[key] = n[key]
+                        if key == 'name':
+                            # name = n[key].split()[0]
+                            # if len(name) < 8:
+                            #     name_abbr = name + '\n' + n[key].split()[1]
+                            #     print(name_abbr)
+                            #
+                            # else:
+                            name_abbr = n[key][:8] + '..'
+                            # print(name_abbr)
+                            # print(name_abbr)
+                            properties['name_abbr'] = name_abbr
+                    node["properties"] = properties
+
+                    new_nodes_list.append(node)
+                    # print(type(node))
+                j_data["nodes"] = new_nodes_list
+                # h_d = json.loads(str(j_data))
+                # print('ty', str(h_d) )
+        required_data_data = {'data': [{'graph': j_data}]}
+        required_data = {'results': [required_data_data]}
+        # print('h', j_data)
+        my_data = json.dumps(required_data)
+    mime_type = 'application/json'
+    f = open("templates/json/dd.json", "w")
+    f.write(my_data)
+    f.close()
+    # print(my_dict(my_data))
+    # print(HttpResponse(data, mime_type).getvalue())
+    return HttpResponse(my_data, mime_type)
+
+def get_node_relationships(request):
+
+    if request.is_ajax():
+        query_str = request.GET.get('node_id', '')
+
+        datas = get_nodes_and_relationships(query_str)
+
+        for data in datas:
+            for r in data:
+                # print('printloop', type(r), r)
+                print(data)
+                j_data = json.loads(r)
+                # print('data_type', type(j_data))
+                nodes = j_data['nodes']
+                # print('hey', type(nodes))
+                del j_data['nodes']
+                # print('j', str(j_data))
+                new_nodes_list = []
+                for n in nodes:
+                    node = {"id": n["id"], "labels": n["labels"]}
+                    properties = {}
+                    # print('s', str(node))
+                    for key in n:
+                        if key != 'label' and key != 'id':
+                            # properties += key + ":" + n[key] + ","
+                            properties[key] = n[key]
+                        if key == 'name':
+                            # name = n[key].split()[0]
+                            # if len(name) < 8:
+                            #     name_abbr = name + '\n' + n[key].split()[1]
+                            #     print(name_abbr)
+                            #
+                            # else:
+                            name_abbr = n[key][:8] + '..'
+                            # print(name_abbr)
+                            # print(name_abbr)
+                            properties['name_abbr'] = name_abbr
+                    node["properties"] = properties
+
+                    new_nodes_list.append(node)
+                    # print(type(node))
+                j_data["nodes"] = new_nodes_list
+                # h_d = json.loads(str(j_data))
+                # print('ty', str(h_d) )
+        required_data_data = {'data': [{'graph': j_data}]}
+        required_data = {'results': [required_data_data]}
+        # print('h', j_data)
+        my_data = json.dumps(required_data)
+        # print('d')
+
+    else:
+        print("fail")
+        data = 'fail'
+        print("ajax correct")
+        query_str = request.GET.get('term', '')
+        # print("term is " + q)
+        query_data = re.sub(r"'", "\\'", query_str)
+
+        datas = json_api_call(query_data)
+
+        # print('j_term', query_str)
+        # print('type hey', datas)
+        results = []
+        # print('length', len(datas))
+
+        for data in datas:
+            for r in data:
+                # print('printloop', type(r), r)
+                print(data)
+                j_data = json.loads(r)
+                # print('data_type', type(j_data))
+                nodes = j_data['nodes']
+                # print('hey', type(nodes))
+                del j_data['nodes']
+                # print('j', str(j_data))
+                new_nodes_list = []
+                for n in nodes:
+                    node = {"id": n["id"], "labels": n["labels"]}
+                    properties = {}
+                    # print('s', str(node))
+                    for key in n:
+                        if key != 'label' and key != 'id':
+                            # properties += key + ":" + n[key] + ","
+                            properties[key] = n[key]
+                        if key == 'name':
+                            # name = n[key].split()[0]
+                            # if len(name) < 8:
+                            #     name_abbr = name + '\n' + n[key].split()[1]
+                            #     print(name_abbr)
+                            #
+                            # else:
+                            name_abbr = n[key][:8] + '..'
+                            # print(name_abbr)
+                            # print(name_abbr)
+                            properties['name_abbr'] = name_abbr
+                    node["properties"] = properties
+
+                    new_nodes_list.append(node)
+                    # print(type(node))
+                j_data["nodes"] = new_nodes_list
+                # h_d = json.loads(str(j_data))
+                # print('ty', str(h_d) )
+        required_data_data = {'data': [{'graph': j_data}]}
+        required_data = {'results': [required_data_data]}
+        # print('h', j_data)
+        my_data = json.dumps(required_data)
+    mime_type = 'application/json'
+    f = open("templates/json/dd.json", "w")
+    f.write(my_data)
+    f.close()
+    # print(my_dict(my_data))
+    # print(HttpResponse(data, mime_type).getvalue())
+    return HttpResponse(my_data, mime_type)
+
+def data_loop(sec_gen, input_children):
+    child = input_children
+    for data in sec_gen:
+        if isinstance(data[0], int):
+            print("here")
+        else:
+            start_node = _get_node_properties(data[0])
+            print(start_node)
+            rs = _get_node_properties(data[1])
+            end_node = _get_node_properties(data[2])
+            print(rs['name'])
+            if rs['name'] == 'mother':
+                if 'children' in child:
+                    child['children'].append(end_node)
+                else:
+                    child['children'] = [end_node]
+
+                # print(child['children'], 'ch')
+            elif rs['name'] == 'husband' or rs['name'] == 'wife' or rs['name'] == 'first_wife':
+                # print('hs')
+                print(end_node['id'], start_node['id'])
+                if end_node['id'] != child['id']:
+                    print('not equal')
+                    if 'spouse' not in child:
+                        print('sp in child already')
+                    #     child['spouse'].append(end_node)
+                    # else:
+                    #     print('el', child)
+                        child['spouse'] = end_node
+                        print(child['spouse'])
+                # print(type(child['spouse']))
+
+    return child
+
+
+def get_family_tree(request):
+    # latest_question_list = Question.objects.order_by('-pub_date')[:5]
+    # context = {'latest_question_list': latest_question_list}
+    # print('list_hey')
+    print("get_list")
+    if request.is_ajax():
+
+        print("ajax correct")
+        query_str = request.GET.get('term', '')
+        # print("term is " + q)
+        query_data = re.sub(r"'", "\\'", query_str)
+
+        datas = family_tree_child(query_data)
+        results = []
+        print('length', len(datas))
+        my_resuts = {}
+        for data in datas:
+            if isinstance(data[0], int):
+                print("here")
+            else:
+
+                start_node = _get_node_properties(data[0])
+                my_resuts = start_node
+        for node in datas:
+            if isinstance(node[0], int):
+                print("here")
+            else:
+                print('hey see')
+                # for type of the node
+                # print(start_node)
+
+                rs = _get_node_properties(node[1])
+                end_node = _get_node_properties(node[2])
+                print('endNode', end_node)
+                if rs['name'] == 'father' or rs['name'] == 'mother':
+                    if 'children' in my_resuts:
+                        my_resuts['children'].append(end_node)
+                    else:
+                        my_resuts['children'] = [end_node]
+                    # my_resuts['id'] = start_node['id']
+                    # my_resuts['children'] = [{'id': end_node['id']}]
+                    children = my_resuts['children']
+                    r_children = children
+                    child_order = 0
+                    print('s', len(r_children))
+                    for child in r_children:
+                        sec_gen = family_tree_normal(child['name'])
+                        # print(len(sec_gen))
+                        if len(sec_gen) != 0:
+                            second_child = data_loop(sec_gen, child)
+                            my_resuts['children'][child_order] = second_child
+                            # print(len(second_child['children']))
+                            sec_child_order = 0
+                            if 'children' in second_child:
+                                for sec_child in second_child['children']:
+                                    third_gen = family_tree_normal(sec_child['name'])
+                                    if len(third_gen) != 0:
+                                        third_children = data_loop(third_gen, sec_child)
+                                        my_resuts['children'][child_order]['children'][sec_child_order] = third_children
+                                        third_child_order = 0
+                                        if 'children' in third_children:
+                                            for third_child in third_children['children']:
+                                                forth_gen = family_tree_normal(third_child['name'])
+                                                if len(forth_gen) != 0:
+                                                    fourth_children = data_loop(forth_gen, third_child)
+                                                    my_resuts['children'][child_order]['children'][sec_child_order]['children'][third_child_order] = fourth_children
+                                                    fourth_child_order = 0
+                                                    if 'children' in fourth_children:
+                                                        for forth_child in fourth_children['children']:
+                                                            fifth_gen = family_tree_normal(forth_child['name'])
+                                                            print('count of ', fourth_child_order)
+                                                            if len(fifth_gen) != 0:
+                                                                fifth_children = data_loop(fifth_gen, forth_child)
+                                                                print('lenof ', len(fifth_children))
+                                                                my_resuts['children'][child_order]['children'][sec_child_order][
+                                                                    'children'][third_child_order][
+                                                                    'children'][fourth_child_order] = fifth_children
+                                                                fifth_child_order = 0
+                                                                if 'children' in fifth_children:
+                                                                    for fifth_child in fifth_children['children']:
+                                                                        sixth_gen = family_tree_normal(fifth_child['name'])
+                                                                        print('six', fifth_child['name'])
+                                                                        if len(sixth_gen) != 0:
+                                                                            sixth_children = data_loop(sixth_gen, fifth_child)
+                                                                            my_resuts['children'][child_order]['children'][
+                                                                                sec_child_order]['children'][third_child_order][
+                                                                                'children'][fourth_child_order][
+                                                                                'children'][fifth_child_order] = sixth_children
+                                                                        fifth_child_order += 1
+                                                            fourth_child_order += 1
+                                                third_child_order += 1
+                                    sec_child_order += 1
+                        child_order += 1
+
+        print('r', json.dumps(my_resuts))
+
+
+    #
+    # else:
+    #     print("fail")
+    #     data = 'fail'
+    # print('psl', yml)
+    mime_type = 'application/json'
+    f = open("templates/json/f_de.yml", "w+")
+    json_data = json.loads(json.dumps(my_resuts))
+    yaml.dump(json_data, f, allow_unicode=True)
+
+    f.close()
+    print('load yaml finished')
+    # print(my_dict(my_data))
+    # print(HttpResponse(data, mime_type).getvalue())
+    return HttpResponse(json_data, mime_type)
+
+
+def get_family_tree_first_gen(request):
     # latest_question_list = Question.objects.order_by('-pub_date')[:5]
     # context = {'latest_question_list': latest_question_list}
     # print('list_hey')
@@ -92,11 +461,6 @@ def get_json_data(request):
         query_data = re.sub(r"'", "\\'", query_str)
 
         datas = json_api_call(query_data)
-
-        # print('j_term', query_str)
-        # print('type hey', datas)
-        results = []
-        # print('length', len(datas))
 
         for data in datas:
             for r in data:
@@ -125,7 +489,7 @@ def get_json_data(request):
                             #
                             # else:
                             name_abbr = n[key][:8] + '..'
-                                # print(name_abbr)
+                            # print(name_abbr)
                             # print(name_abbr)
                             properties['name_abbr'] = name_abbr
                     node["properties"] = properties
@@ -151,6 +515,16 @@ def get_json_data(request):
     # print(my_dict(my_data))
     # print(HttpResponse(data, mime_type).getvalue())
     return HttpResponse(my_data, mime_type)
+
+def get_sample_data (request) :
+    if request.is_ajax():
+
+        print("ajax correct data sample")
+        query_str = request.GET.get('term', '')
+        # print("term is " + q)
+        datas = sample_data()
+        print(datas)
+        print(type(datas[0][0]))
 
 
 def get_list(request):
