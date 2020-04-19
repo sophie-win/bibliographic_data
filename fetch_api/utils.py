@@ -64,15 +64,15 @@ def fetch_countries():
     return countries
 
 
-def filter_countries(a):
+def get_suggested_nodes(a):
     query2 = f'''
     match (n) 
-    with n, [x in keys(n) WHERE n[x]=~'{a}.*' and NOT n:Person] as doesMatch
+    with n, [x in keys(n) WHERE n[x]=~'(?i){a}.*' and NOT n:Person] as doesMatch
     where size(doesMatch) > 0
     return n + doesMatch as countries limit 10
     '''
     results = {}
-    print(query2)
+    # print(query2)
     results = db.cypher_query(query2)[0]
 
     # print(countries)
@@ -118,7 +118,7 @@ def sample_data():
     '''
 
     results = {}
-    print(query)
+    # print(query)
     results = db.cypher_query(query)[0]
     return results
 
@@ -137,10 +137,18 @@ def json_api_call(q_data):
             WITH {s4} as json
             RETURN apoc.convert.toJson(json)
             '''
-    print(query_str)
+    # print(query_str)
     # results = {}
     results = db.cypher_query(query_str)[0]
     # print(results)
+    return results
+
+
+def get_first_generation_family_tree():
+    first_gen = '1'
+    query = f'''Match (n:Person) where n.generation = '{first_gen}' return n.name, ID(n)'''
+    results = db.cypher_query(query)[0]
+    # print(query)
     return results
 
 def get_nodes_and_relationships(node_id):
@@ -158,7 +166,7 @@ def get_nodes_and_relationships(node_id):
             WITH {s4} as json
             RETURN apoc.convert.toJson(json)
             '''
-    print(query_str)
+    # print(query_str)
     # results = {}
     results = db.cypher_query(query_str)[0]
     # print(results)
@@ -178,7 +186,7 @@ def family_tree_json_api_call(q_data):
                 {s3}] as rels
                 WITH {s4} as json
                 RETURN apoc.convert.toJson(json)'''
-    print(query)
+    # print(query)
     # results = {}
     results = db.cypher_query(query)[0]
     # print(results)
@@ -186,18 +194,21 @@ def family_tree_json_api_call(q_data):
 
 
 def family_tree_normal(q_data):
-    query = f'''MATCH (n:Person)-[rs:Rs]-(m:Person)
+    query = f'''MATCH (n:Person)-[rs]-(m:Person)
                 WHERE n.name = '{q_data}' and n.generation <= m.generation  
-                return n,rs,m'''
-    print(query)
+                return n,type(rs),m'''
     results = db.cypher_query(query)[0]
+
+    # if q_data == 'Mary Anne Wedgwood':
+    #      print(query)
+    #      print(results)
     return results
 
 def family_tree_child(q_data):
-    query = f'''MATCH (n:Person)-[rs:Rs]-(m:Person)
-                WHERE n.name = '{q_data}' and n.generation < m.generation  
-                return n,rs,m'''
-    print(query)
+    query = f'''MATCH (n:Person)-[rs]-(m:Person)
+                WHERE ID(n) = {q_data} and n.generation < m.generation  
+                return n,type(rs),m'''
+    # print(query)
     results = db.cypher_query(query)[0]
     return results
 
