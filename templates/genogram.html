@@ -19,7 +19,7 @@
     <script src="../static/scripts/d3.min.js"></script>
     <script src="../static/scripts/js-yaml.min.js"></script>
 
-{#    <link rel="stylesheet" href="../static/css/font-awesome.min.css">#}
+    {#    <link rel="stylesheet" href="../static/css/font-awesome.min.css">#}
     <link href="../static/css/media_query.css" rel="stylesheet" type="text/css"/>
     <link href="../static/css/bootstrap.css" rel="stylesheet" type="text/css"/>
     <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
@@ -38,6 +38,24 @@
             padding: 10px;
             font-size: 20px;
         }
+
+        .column {
+            float: left;
+            width: 70px;
+            padding: 5px;
+            text-align: center;
+            border: #636c72;
+            height: 30px; /* Should be removed. Only for demonstration */
+        }
+
+        .card {
+            box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+            transition: 0.2s;
+            {#width: 820px;#}
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
     </style>
     <script>
         $(() => {
@@ -147,6 +165,7 @@
                 data: {'term': 'NTU'},
                 contentType: "application/json; charset=utf-8",
                 success: function (response) {
+                    {#alert('not working')#}
                     helpers.buildDropdown(
                         response,
                         $('#dropdown'),
@@ -154,7 +173,7 @@
                     );
                 },
                 error: function (xhr, ajaxOptions, thrownError) {
-                    {#alert(xhr.status + thrownError.stackTrace);#}
+                    alert(xhr.status + thrownError.stackTrace);
                 }
             });
             // declares a tree layout and assigns the size
@@ -245,12 +264,12 @@
                         return 'box';
                     })
                     .on('mouseover', d => {
+                        {#alert('hey mov')#}
                         const bio = d3.select('#bio');
-                        if (d.data.bio) {
-                            bio.html(`Bio: ${d.data.bio}`);
-                        } else {
-                            bio.html('');
-                        }
+
+                        bio.html(`Name: ${d.data.name}`);
+
+
                     });
 
                 // Add labels for the nodes
@@ -259,7 +278,7 @@
                     .classed('node-name', true)
                     .attr('dy', '.35em') // shift it to vertically middle
                     .attr('text-anchor', 'middle')
-                    .text(d => d.data.name);
+                    .text(d => d.data.name_abbr);
 
                 const nodeHasSpouse = nodeEnter.filter(d => !!d.data.spouse);
 
@@ -319,7 +338,7 @@
                             return 'font-size: 10px';
                         }
                     })
-                    .text(d => `⚭${d.data.spouse.name || d.data.spouse}`);
+                    .text(d => `⚭${d.data.spouse.name_abbr || d.data.spouse}`);
 
                 // Add expand indicator
                 nodeEnter
@@ -488,17 +507,31 @@
 {#    <div id="bio" class="bio-display"></div>#}
 {#</div>#}
 <div class="container-fluid paddding mb-5">
-    <div class="col mx-0" >
+    <div class="col mx-0">
         <div class="col paddding animate-box" data-animate-effect="fadeIn">
-            <div style="width: 1000px; margin: 0 auto;">
+            <div class="card">
+                <div style="width: 900px; margin: 0 auto;">
+                    </b><label class="fh5co_heading py-2 mb-4" for="dropdown"
+                               style="margin-right: 10px;margin-top: 20px;">Darwin
+                    Family's First Generation:</label></b><select class="fh5co_heading py-2 mb-4"
+                                                                  id="dropdown"></select>
+                </div>
+            </div>
 
-                </b><label class="fh5co_heading py-2 mb-4" for="dropdown" style="margin-right: 10px;margin-top: 20px;">Darwin Family's First Generation:</label></b><select class="fh5co_heading py-2 mb-4" id="dropdown"></select></div>
         </div>
-        <div class="col my-xl-auto" style="height: 100vh;">
+
+        <div class="col my-xl-auto" style="height: 100vh;border: 1px solid #ddd;">
+            <div class="row" style="border: #636c72; padding-top: 5px; padding-right: 5px; float: right">
+                <div class="column" style="background-color: #F8BBD0;stroke: mediumvioletred" align="right"><label>Female</label>
+                </div>
+                <div class="column" style="background-color: #eee; stroke: #333;" align="right"><p>N/A</p></div>
+                <div class="column" style="background-color: #25c3f4;  stroke: royalblue;" align="right"><p>Male</p>
+                </div>
+            </div>
+            <div id="bio" class="bio-display" style="padding-top:10px;width:300px; height:39px; color:#1d1e1f;"></div>
             <div>
-        <main id="tree" class="chart-container"></main>
-    </div>
-    <div id="bio" class="bio-display"></div>
+                <main id="tree" class="chart-container"></main>
+            </div>
         </div>
     </div>
 

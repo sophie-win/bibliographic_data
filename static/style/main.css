@@ -25,17 +25,29 @@ html {
 }
 
 .box--female {
-	stroke: mediumvioletred;
-	fill: #ffd6ee;
+	stroke: #F8BBD0;
+	fill: #F8BBD0;
 }
 
 .box--male {
-	fill: #d6ddff;
-	stroke: royalblue;
+	fill: #25c3f4;
+	stroke: #25c3f4;
 }
 
 .node-name,
 .spouse-name {
+	height: 18px;
+  width: 140px;
+  padding: 0;
+  overflow: hidden;
+  position: relative;
+  display: inline-block;
+  margin: 0 5px 0 5px;
+  text-align: center;
+  text-decoration: none;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  background-color: #000;
 	font: 12px sans-serif;
 }
 
@@ -50,7 +62,7 @@ html {
 
 .bio-display {
 	position: fixed;
-	top: 0;
-	left: 0;
+	/*top: 0;*/
+	/*left: 0;*/
 	background: rgba(255, 255, 255, 0.5);
 }

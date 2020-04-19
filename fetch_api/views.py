@@ -315,7 +315,7 @@ def get_family_tree(request):
         print("ajax correct")
         query_data = request.GET.get('term', '')
         datas = family_tree_child(query_data)
-        print('length', len(datas))
+        # print('length', len(datas))
         my_resuts = {}
         for data in datas:
             if isinstance(data[0], int):
@@ -427,6 +427,7 @@ def get_family_tree(request):
     mime_type = 'application/x-yml'
     # f = open("templates/json/f_de.yml", "w+")
     json_data = json.loads(json.dumps(my_resuts))
+    # yaml.dump(json_data, f, allow_unicode=True)
 
     # f = open("templates/json/dd.json", "w")
     # f.write(json.dumps(my_resuts))
@@ -510,6 +511,7 @@ def get_family_tree_first_gen(request):
 
 
 def get_sample_data(request):
+    print('hello')
     if request.is_ajax():
         print("ajax correct data sample")
         query_str = request.GET.get('term', '')

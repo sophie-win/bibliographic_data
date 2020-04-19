@@ -208,7 +208,7 @@ def family_tree_child(q_data):
     query = f'''MATCH (n:Person)-[rs]-(m:Person)
                 WHERE ID(n) = {q_data} and n.generation < m.generation  
                 return n,type(rs),m'''
-    # print(query)
+    # print(len('Charlotte Mildred Massing'))
     results = db.cypher_query(query)[0]
     return results
 

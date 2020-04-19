@@ -10,6 +10,7 @@ neobolt==1.7.16
 neomodel==3.3.2
 neotime==1.7.4
 pytz==2019.3
+PyYAML==5.3.1
 six==1.14.0
 sqlparse==0.3.0
 whitenoise==5.0.1
