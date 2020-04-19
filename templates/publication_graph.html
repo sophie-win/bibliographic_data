@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en" class="no-js">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>Publication Graph</title>
+    <link href="../static/css/media_query.css" rel="stylesheet" type="text/css"/>
+    <link href="../static/css/bootstrap.css" rel="stylesheet" type="text/css"/>
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet"
+          integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+    <link href="../static/css/animate.css" rel="stylesheet" type="text/css"/>
+    <link href="https://fonts.googleapis.com/css?family=Poppins" rel="stylesheet">
+    <link href="../static/css/owl.carousel.css" rel="stylesheet" type="text/css"/>
+    <link href="../static/css/owl.theme.default.css" rel="stylesheet" type="text/css"/>
+    <!-- Bootstrap CSS -->
+    <link href="../static/css/style_1.css" rel="stylesheet" type="text/css"/>
+    <!-- Modernizr JS -->
+    <script src="../static/js/modernizr-3.5.0.min.js"></script>
+
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    {#    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>#}
+    {#    <link rel="stylesheet" href="../static/css/bootstrap.min.css">#}
+    {#    <link rel="stylesheet" href="../static/css/font-awesome.min.css">#}
+    <link rel="stylesheet" href="../static/css/neo4jd3.css?v=0.0.1">
+    <script src="../static/js/d3.min.js"></script>
+    <script src="../static/js/neo4jd3.js?v=0.0.1'"></script>
+    <script>
+        function init(data) {
+            var neo4jd3 = new Neo4jd3('#neo4jd3', {
+                    icons: {
+// //
+                    },
+                    images: {
+                        'Address': 'Apple',
+//                        'Api': 'img/twemoji/1f527.svg',
+                        'BirthDate': 'Apple',
+                    },
+                    text: {
+                        'Cookie': "HELLO",
+                    },
+                    minCollision: 60,
+                    nodeRadius: 25,
+                    neo4jData: data,
+                    zoomFit: false,
+                    onNodeDoubleClick: function (node) {
+                        $.ajax({
+                            type: "GET",
+                            url: "api/expand_more/",
+                            data: {'node_id': node.id},
+                            contentType: "application/json; charset=utf-8",
+                            success: function (response) {
+                                {#alert(JSON.stringify(response));#}
+                                var d3_data = neo4jd3.neo4jDataToD3Data(response);
+                                {#random_data = neo4jd3.randomD3Data(node, 5)#}
+                                var nodes = d3_data.nodes;
+                                var relationships = d3_data.relationships;
+                                {#alert("hek " + JSON.stringify(d3_data) )#}
+
+                                var del_index = [], del_rs_indexes = [];
+                                data.results.forEach(function (result) {
+                                    result.data.forEach(function (d) {
+                                        nodes.forEach(function (return_node) {
+                                            var actual_index = d.graph.nodes.findIndex(data => data.id === return_node.id);
+                                            {#alert(actual_index + " " + return_node.id)#}
+                                            if (actual_index >= 0) {
+                                                var index = nodes.findIndex(n => n.id === return_node.id);
+                                                del_index.push(index);
+
+                                            } else {
+                                                d.graph.nodes.push(return_node);
+                                                {#alert('push' + JSON.stringify(return_node))#}
+                                            }
+
+                                        });
+                                        relationships.forEach(function (rs) {
+                                            var rs_actual_index = d.graph.relationships.findIndex(rel => rel.id === rs.id);
+                                            if (rs_actual_index >= 0) {
+                                                var rs_index = relationships.findIndex(r => r.id === rs.id);
+                                                del_rs_indexes.push(rs_index);
+                                            } else {
+                                                d.graph.relationships.push(rs);
+                                            }
+                                        });
+
+                                    });
+                                });
+
+
+//to eliminate the null value from deleted node
+                                {#alert(del_index)#}
+                                for (i = 0; i < del_index.length; i++) {
+                                    delete nodes[del_index[i]];
+                                    {#alert(nodes[del_index[i]]);#}
+                                }
+
+                                for (i = 0; i < del_rs_indexes.length; i++) {
+                                    delete relationships[del_rs_indexes[i]];
+                                    {#alert(nodes[del_index[i]]);#}
+                                }
+
+                                const j = JSON.stringify(d3_data, (k, v) => Array.isArray(v)
+                                && !(v = v.filter(e => e)).length ? void 0 : v, 2);
+                                {#alert(j)#}
+
+                                {#document.getElementById("return_data").innerText = j;#}
+                                neo4jd3.updateWithD3Data(JSON.parse(j))
+                            },
+                            error: function (xhr, ajaxOptions, thrownError) {
+                                {#alert(xhr.status + thrownError.toString());#}
+                                {#alert(thrownError.stackTrace);#}
+                            }
+                        });
+
+                        {#neo4jd3.updateWithD3Data(random_data)#}
+                    },
+                    onRelationshipDoubleClick: function (relationship) {
+                        console.log('double click on relationship: ' + JSON.stringify(relationship));
+                    },
+                }
+                )
+            ;
+        }
+
+        {#window.onload = init;#}
+
+        $(function () {
+
+            {#$("#includedContent").load("aa.html");#}
+
+            $("#tags").autocomplete({
+                {#source: availableTags,#}
+                source: '/api/get_suggestions/',
+                minLength: 1,
+                select: function (event, ui) {
+
+                    {#alert(ui.item.value)#}
+                    {#AutoCompleteSelectHandler(event, ui)#}
+
+                    GetJson(ui.item.name)
+                    $('#title').text(ui.item.name)
+
+                    {#$("#project").val(ui.item.label);#}
+                    {#$("#project-id").val(ui.item.value);#}
+                    {#$("#project-description").html(ui.item.desc);#}
+                    {#$("#project-icon").attr("src", "images/" + ui.item.icon);#}
+
+                    return true;
+                }
+            }).autocomplete("instance")._renderItem = function (ul, item) {
+                return $("<li>")
+                    .append("<div ><div style='float: right'><button style='background: #f5bc04; color: #fff;  padding: 3px;'> " + item.node_type + "</button></div> <br>" + item.value + "</div>")
+                    .appendTo(ul);
+            };
+
+            function AutoCompleteSelectHandler(event, ui) {
+                var selectedObj = ui.item;
+                {#alert(selectedObj.value)#}
+
+            }
+
+            function GetJson(term) {
+                // Send an AJAX request
+                $.ajax({
+                    type: "GET",
+                    url: "api/get_json_data/",
+                    data: {'term': term},
+                    contentType: "application/json; charset=utf-8",
+                    success: function (response) {
+                        init(response)
+
+                    },
+                    error: function (xhr, ajaxOptions, thrownError) {
+                        {#alert(xhr.status + thrownError.toString());#}
+                        {#alert(thrownError.stackTrace);#}
+                    }
+                });
+            }
+        });
+        {# function #}
+
+
+    </script>
+</head>
+<body>
+
+<div class="container-fluid">
+    <div class="container">
+        <div class="row">
+            <div class="col-12 col-md-3 fh5co_padding_menu">
+                <img src="../static/img/logo.png" alt="img" class="fh5co_logo_width"/>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="container-fluid bg-faded fh5co_padd_mediya padding_786">
+    <div class="container padding_786">
+        <nav class="navbar navbar-toggleable-md navbar-light ">
+            <button class="navbar-toggler navbar-toggler-right mt-3" type="button" data-toggle="collapse"
+                    data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                    aria-label="Toggle navigation"><span class="fa fa-bars"></span></button>
+            <a class="navbar-brand" href="#"><img src="../static/img/logo.png" alt="img" class="mobile_logo_width"/></a>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item active">
+                        <a class="nav-link" href="publication_graph.html">Publication Graph <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item ">
+                        <a class="nav-link" href="genogram.html">Genogram <span class="sr-only">(current)</span></a>
+                    </li>
+                    <li class="nav-item ">
+                        <a class="nav-link" href="about_us.html">About Us <span class="sr-only">(current)</span></a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+</div>
+<div class="container-fluid paddding mb-5">
+    <div class="col mx-0">
+        <div class="col paddding animate-box" data-animate-effect="fadeIn">
+            <input type="text" class="w-100 form-control-xs-lg search-input" id="tags" name="term"
+                   placeholder="Search Here..."
+                   style="width: 95%; padding:10px; margin-top: 50px; ">
+        </div>
+        <div class="col my-xl-auto" style="height: 100vh;border: 1px solid #ddd;">
+            <div>
+                <div class="fh5co_heading py-2 mb-4" id="title"></div>
+            </div>
+{#            <p style="padding-top: 20px; color: #f5bc04" ></p>#}
+            <div style="height: 100%;" id="neo4jd3"></div>
+        </div>
+    </div>
+
+</div>
+
+
+<script src="../static/js/owl.carousel.min.js"></script>
+<!--<script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>-->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js"
+        integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb"
+        crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js"
+        integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn"
+        crossorigin="anonymous"></script>
+<!-- Waypoints -->
+<script src="../static/js/jquery.waypoints.min.js"></script>
+<!-- Main -->
+<script src="../static/js/main.js"></script>
+
+</body>
+</html>
