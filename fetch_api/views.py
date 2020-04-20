@@ -17,7 +17,7 @@ import yaml
 
 
 def get_suggestions(request):
-    print("hey")
+    # print("hey")
     if request.is_ajax():
         term = request.GET.get('term', '')
         # get_list(request, term)

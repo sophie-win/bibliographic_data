@@ -102,8 +102,8 @@ def book_and_author(a):
     results = db.cypher_query(query)[0]
     return results
 
-def sample_data():
 
+def sample_data():
     a = '{maxLevel:2}'
     b = '{.*, label:labels(node)[0]}'
     c = ' {.*, fromNode:{label:'
@@ -121,6 +121,7 @@ def sample_data():
     # print(query)
     results = db.cypher_query(query)[0]
     return results
+
 
 def json_api_call(q_data):
     s1 = '{maxLevel:2, limit:30}'
@@ -151,6 +152,7 @@ def get_first_generation_family_tree():
     # print(query)
     return results
 
+
 def get_nodes_and_relationships(node_id):
     s1 = '{maxLevel:1, limit:30}'
     s2 = '{.*, id:node.id,labels:[labels(node)[0]]}'
@@ -171,6 +173,7 @@ def get_nodes_and_relationships(node_id):
     results = db.cypher_query(query_str)[0]
     # print(results)
     return results
+
 
 def family_tree_json_api_call(q_data):
     s1 = '{maxLevel:2}'
@@ -194,9 +197,15 @@ def family_tree_json_api_call(q_data):
 
 
 def family_tree_normal(q_data):
-    query = f'''MATCH (n:Person)-[rs]-(m:Person)
-                WHERE n.name = '{q_data}' and n.generation <= m.generation  
-                return n,type(rs),m'''
+    query = f'''MATCH (n:Person)-[rs]->(m:Person)
+                WHERE n.name = '{q_data}' and type(rs)='Mother_Of' 
+                return n,type(rs),m union all
+                MATCH (n:Person)-[rs]->(m:Person)
+                WHERE n.name = '{q_data}' and type(rs)='Father_Of' 
+                return n,type(rs),m union all 
+                MATCH (n:Person)-[rs]-(m:Person)
+ WHERE n.name = '{q_data}' and type(rs)='Married' 
+ return n,type(rs),m'''
     results = db.cypher_query(query)[0]
 
     # if q_data == 'Mary Anne Wedgwood':
@@ -204,13 +213,18 @@ def family_tree_normal(q_data):
     #      print(results)
     return results
 
+
 def family_tree_child(q_data):
     query = f'''MATCH (n:Person)-[rs]-(m:Person)
-                WHERE ID(n) = {q_data} and n.generation < m.generation  
+                WHERE ID(n) = {q_data} and type(rs)='Father_Of'  
+                return n,type(rs),m union all
+                MATCH (n:Person)-[rs]-(m:Person)
+                WHERE ID(n) = {q_data} and type(rs)='Mother_Of'  
                 return n,type(rs),m'''
     # print(len('Charlotte Mildred Massing'))
     results = db.cypher_query(query)[0]
     return results
+
 
 def _get_node_properties(node):
     """Get the properties from a neo4j.v1.types.graph.Node object."""
