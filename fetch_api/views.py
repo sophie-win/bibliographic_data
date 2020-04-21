@@ -144,6 +144,71 @@ def get_json_data(request):
         print("fail")
         data = 'fail'
         print("ajax correct")
+        query_str = request.GET.get('term', '')
+        query_data = re.sub(r"'", "\\'", query_str)
+
+        datas = json_api_call(query_data)
+        # print(datas)
+        for data in datas:
+            for r in data:
+                # print('printloop', type(r), r)
+                # print(data)
+                j_data = json.loads(r)
+                # print('data_type', type(j_data))
+                nodes = j_data['nodes']
+                # print('hey', type(nodes))
+                del j_data['nodes']
+                # print('j', str(j_data))
+                new_nodes_list = []
+                for rs in nodes:
+                    rsp = {"id": rs["id"], "labels": rs["labels"]}
+                    properties = {}
+                    # print('s', str(node))
+                    for key in rs:
+                        if key != 'label' and key != 'id':
+                            # properties += key + ":" + n[key] + ","
+                            properties[key] = rs[key]
+                        if key == 'name':
+                            # name = n[key].split()[0]
+                            # if len(name) < 8:
+                            #     name_abbr = name + '\n' + n[key].split()[1]
+                            #     print(name_abbr)
+                            #
+                            # else:
+                            name_abbr = rs[key][:8] + '..'
+                            # print(name_abbr)
+                            # print(name_abbr)
+                            properties['name_abbr'] = name_abbr
+                    rsp["properties"] = properties
+
+                    new_nodes_list.append(rsp)
+                    # print(type(node))
+                new_rs_list = []
+                relationships = j_data['relationships']
+                del j_data['relationships']
+                for rs in relationships:
+                    rsp = {"id": rs["id"], "startNode": rs["startNode"], "endNode": rs["endNode"], "type": rs["type"]}
+                    properties = {}
+                    for key in rs:
+                        if key != 'startNode' and key != 'id' and key != 'endNode' and key != 'type':
+                            # properties += key + ":" + n[key] + ","
+                            properties[key] = rs[key]
+
+                    rsp["properties"] = properties
+
+                    new_rs_list.append(rsp)
+
+                    # print(type(node))
+                j_data["nodes"] = new_nodes_list
+                j_data['relationships'] = new_rs_list
+                # print("heyNew", new_rs_list)
+                j_data["nodes"] = new_nodes_list
+                # h_d = json.loads(str(j_data))
+                # print('ty', str(h_d) )
+        required_data_data = {'data': [{'graph': j_data}]}
+        required_data = {'results': [required_data_data]}
+        # print('h', j_data)
+        my_data = json.dumps(required_data)
 
     mime_type = 'application/json'
     # f = open("templates/json/dd.json", "w")
