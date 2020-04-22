@@ -147,7 +147,7 @@ def json_api_call(q_data):
 
 def get_first_generation_family_tree():
     first_gen = '1'
-    query = f'''Match (n:Person) where n.generation = '{first_gen}' return n.name, ID(n)'''
+    query = f'''Match (n:Person) where n.generation = '{first_gen}' return n.name, ID(n) order by n.name'''
     results = db.cypher_query(query)[0]
     # print(query)
     return results
@@ -168,7 +168,7 @@ def get_nodes_and_relationships(node_id):
             WITH {s4} as json
             RETURN apoc.convert.toJson(json)
             '''
-    # print(query_str)
+    print(query_str)
     # results = {}
     results = db.cypher_query(query_str)[0]
     # print(results)
@@ -199,25 +199,34 @@ def family_tree_json_api_call(q_data):
 def family_tree_normal(q_data):
     query = f'''MATCH (n:Person)-[rs]->(m:Person)
                 WHERE n.name = '{q_data}' and type(rs)='Mother_Of' 
-                return n,type(rs),m union all
+                return n,type(rs),m union 
                 MATCH (n:Person)-[rs]->(m:Person)
                 WHERE n.name = '{q_data}' and type(rs)='Father_Of' 
-                return n,type(rs),m union all 
+                return n,type(rs),m union  
                 MATCH (n:Person)-[rs]-(m:Person)
- WHERE n.name = '{q_data}' and type(rs)='Married' 
- return n,type(rs),m'''
+                WHERE n.name = '{q_data}' and type(rs)='Married'
+                return n,type(rs),m  union  
+                MATCH (n:Person)-[rs]-(m:Person)
+                WHERE n.name = '{q_data}' and type(rs)='First_Married'
+                return n,type(rs),m  union  
+                MATCH (n:Person)-[rs]-(m:Person)
+                WHERE n.name = '{q_data}' and type(rs)='Second_Married'
+                return n,type(rs),m union   
+                MATCH (n:Person)-[rs]-(m:Person)
+                WHERE n.name = '{q_data}' and type(rs)='Third_Married' 
+                return n,type(rs),m'''
     results = db.cypher_query(query)[0]
 
-    # if q_data == 'Mary Anne Wedgwood':
-    #      print(query)
-    #      print(results)
+    # if q_data == 'Francis Darwin':
+    # #     print(query)
+    #     print(len(results))
     return results
 
 
 def family_tree_child(q_data):
     query = f'''MATCH (n:Person)-[rs]-(m:Person)
                 WHERE ID(n) = {q_data} and type(rs)='Father_Of'  
-                return n,type(rs),m union all
+                return n,type(rs),m union 
                 MATCH (n:Person)-[rs]-(m:Person)
                 WHERE ID(n) = {q_data} and type(rs)='Mother_Of'  
                 return n,type(rs),m'''

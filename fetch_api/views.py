@@ -169,15 +169,7 @@ def get_json_data(request):
                             # properties += key + ":" + n[key] + ","
                             properties[key] = rs[key]
                         if key == 'name':
-                            # name = n[key].split()[0]
-                            # if len(name) < 8:
-                            #     name_abbr = name + '\n' + n[key].split()[1]
-                            #     print(name_abbr)
-                            #
-                            # else:
                             name_abbr = rs[key][:8] + '..'
-                            # print(name_abbr)
-                            # print(name_abbr)
                             properties['name_abbr'] = name_abbr
                     rsp["properties"] = properties
 
@@ -330,7 +322,7 @@ def get_node_relationships(request):
     # f.close()
     # print(my_dict(my_data))
     # print(HttpResponse(data, mime_type).getvalue())
-    print('day ', my_data)
+    # print('day ', my_data)
     return HttpResponse(my_data, mime_type)
 
 
@@ -344,6 +336,8 @@ def data_loop(sec_gen, input_children):
             # print(start_node)
             rs = data[1]
             end_node = _get_node_properties(data[2])
+            # if end_node['name'] == 'Francis Darwin':
+            #     print(rs)
             # print('end', end_node)
             if rs == 'Mother_Of' or rs == 'Father_Of':
                 if 'children' in child:
@@ -354,27 +348,28 @@ def data_loop(sec_gen, input_children):
                 # print(child['children'], 'ch')
             elif rs == 'Married' or rs == 'First_Married' or rs == 'Second_Married' or rs == 'Third_Married':
                 # print('hs')
-                # print(end_node['id'], start_node['id'])
+
                 if end_node['id'] != child['id']:
                     # print('not equal')
-                    if 'spouse' not in child:
-                        # print('sp in child already')
-                        #     child['spouse'].append(end_node)
-                        # else:
-                        #     print('el', child)
-                        child['spouse'] = end_node
+
+                    child['spouse'] = end_node
+                    # if 'spouse_list' not in child:
+                    #     print('sp in child already')
+                    #     child['spouse_list'].append(end_node)
+                    # else:
+                    #     print('el', child)
+                    #     child['spouse_list'] = [end_node]
                         # print(child['spouse'])
+
                 # print(type(child['spouse']))
+                # if end_node['name'] == 'Francis Darwin':
+                #     print(child['spouse'])
         # print(child)
 
     return child
 
 
 def get_family_tree(request):
-    # latest_question_list = Question.objects.order_by('-pub_date')[:5]
-    # context = {'latest_question_list': latest_question_list}
-    # print('list_hey')
-    # print("get_list")
     if request.is_ajax():
 
         print("ajax correct")
