@@ -203,10 +203,11 @@ def get_json_data(request):
         my_data = json.dumps(required_data)
 
     mime_type = 'application/json'
-    # f = open("templates/json/dd.json", "w")
+    # f = open("templates/json/data.json", "w")
     # f.write(my_data)
     # f.close()
     # print(my_dict(my_data))
+    # print(required_data)
     # print(HttpResponse(data, mime_type).getvalue())
     return HttpResponse(my_data, mime_type)
 
@@ -485,13 +486,14 @@ def get_family_tree(request):
     #     data = 'fail'
     # print('psl', yml)
     mime_type = 'application/x-yml'
-    # f = open("templates/json/f_de.yml", "w+")
+    f = open("templates/json/f_de.yml", "w+")
     json_data = json.loads(json.dumps(my_resuts))
-    # yaml.dump(json_data, f, allow_unicode=True)
+    yaml.dump(json_data, f, allow_unicode=True)
 
     # f = open("templates/json/dd.json", "w")
     # f.write(json.dumps(my_resuts))
     # f.close()
+
     yml_data = yaml.dump(json_data, None, allow_unicode=True)
     # f.close()
     # print(json.dumps(my_resuts))
