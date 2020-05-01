@@ -138,7 +138,7 @@ def json_api_call(q_data):
             WITH {s4} as json
             RETURN apoc.convert.toJson(json)
             '''
-    # print(query_str)
+    print(query_str)
     # results = {}
     results = db.cypher_query(query_str)[0]
     # print(results)

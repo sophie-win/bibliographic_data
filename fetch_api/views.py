@@ -486,9 +486,9 @@ def get_family_tree(request):
     #     data = 'fail'
     # print('psl', yml)
     mime_type = 'application/x-yml'
-    f = open("templates/json/f_de.yml", "w+")
+    # f = open("templates/json/f_de.yml", "w+")
     json_data = json.loads(json.dumps(my_resuts))
-    yaml.dump(json_data, f, allow_unicode=True)
+    # yaml.dump(json_data, f, allow_unicode=True)
 
     # f = open("templates/json/dd.json", "w")
     # f.write(json.dumps(my_resuts))
