@@ -386,7 +386,6 @@ def get_family_tree(request):
 
                 start_node = _get_node_properties(data[0])
                 my_resuts = start_node
-        # r_children = []
 
         child_order = 0
         for node in datas:
@@ -479,14 +478,7 @@ def get_family_tree(request):
                                     sec_child_order += 1
                     child_order += 1
 
-        # print('r', json.dumps(my_resuts))
-    #
-    # else:
-    #     print("fail")
-    #     data = 'fail'
-    # print('psl', yml)
     mime_type = 'application/x-yml'
-    # f = open("templates/json/f_de.yml", "w+")
     json_data = json.loads(json.dumps(my_resuts))
     # yaml.dump(json_data, f, allow_unicode=True)
 
