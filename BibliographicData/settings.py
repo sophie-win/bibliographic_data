@@ -86,9 +86,9 @@ DATABASES = {
 }
 
 #Connect to Neo4j Database
-# config.DATABASE_URL = 'bolt://neo4j:root@localhost:7687'
+config.DATABASE_URL = 'bolt://neo4j:root@localhost:7687'
 # config.DATABASE_URL = 'bolt://neo4j:test@159.89.205.73:7687'
-config.DATABASE_URL = 'bolt://neo4j:root@128.199.71.221:7687' #active
+# config.DATABASE_URL = 'bolt://neo4j:root@128.199.71.221:7687' #active
 
 
 # Password validation
@@ -170,7 +170,8 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # ALLOWED_HOSTS = ['paradise-papers-django.herokuapp.com', '10.0.0.72']
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '0.0.0.0', 'graphs.be', '128.199.71.221']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '0.0.0.0', 'graphs.be', '128.199.71.221', 'www.graphs.be']
+
 
 
 
