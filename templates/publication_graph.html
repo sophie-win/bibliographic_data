@@ -169,7 +169,7 @@
                     data: {'term': term},
                     contentType: "application/json; charset=utf-8",
                     success: function (response) {
-                        init(response)
+                        init(response) //Once get output from database, pass to init()
 
                     },
                     error: function (xhr, ajaxOptions, thrownError) {
@@ -190,7 +190,7 @@
     <div class="container">
         <div class="row">
             <div class="col-12 col-md-3 fh5co_padding_menu">
-                <img src="../static/img/logo.png" alt="img" class="fh5co_logo_width"/>
+                <img src="../static/img/logo.png" alt="Graphs.be logo" class="fh5co_logo_width"/>
             </div>
         </div>
     </div>
@@ -213,6 +213,9 @@
                     <li class="nav-item ">
                         <a class="nav-link" href="about_us.html">About Us <span class="sr-only">(current)</span></a>
                     </li>
+                    <li class="nav-item ">
+                        <a class="nav-link" href="upload_csv.html">Upload CSV<span class="sr-only">(current)</span></a>
+                    </li>
                 </ul>
             </div>
         </nav>
@@ -227,6 +230,7 @@
         </div>
         <div class="col my-xl-auto" style="height: 100vh;border: 1px solid #ddd;">
             <div>
+                <!--to show auto-complete search-->
                 <div class="fh5co_heading py-2 mb-4" id="title"></div>
             </div>
 {#            <p style="padding-top: 20px; color: #f5bc04" ></p>#}

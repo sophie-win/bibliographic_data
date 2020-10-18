@@ -23,11 +23,13 @@ from fetch_api import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('uploadcsv', views.uploadcsv, name='uploadcsv'), #make function in views.py callable
     url(r'^$', TemplateView.as_view(template_name='publication_graph.html'), name='index'),
     url(r'^fetch/', include(('fetch_api.urls', 'fetch_api'), namespace='fetch_api')),
     url(r'^api/get_suggestions/', views.get_suggestions),
     url(r'^publication_graph', TemplateView.as_view(template_name='publication_graph.html'), name='publication_graph'),
     url(r'^about_us', TemplateView.as_view(template_name='about_us.html'), name='about_us'),
+    url(r'^upload_csv', TemplateView.as_view(template_name='upload_csv.html'), name='upload_csv'), #get html shown
     url(r'^genogram', TemplateView.as_view(template_name='genogram.html'), name='genogram'),
     url(r'^api/get_list/', views.get_list),
     url(r'^api/get_json_data/', views.get_json_data),

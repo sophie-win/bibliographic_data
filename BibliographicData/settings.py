@@ -85,7 +85,7 @@ DATABASES = {
     }
 }
 
-#Connect to Neo4j Database
+#Connect to Neo4j Database, when using browser to open, port is 7474. username: neo4j. password: root
 config.DATABASE_URL = 'bolt://neo4j:root@localhost:7687'
 # config.DATABASE_URL = 'bolt://neo4j:test@159.89.205.73:7687'
 # config.DATABASE_URL = 'bolt://neo4j:root@128.199.71.221:7687' #active

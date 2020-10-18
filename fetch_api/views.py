@@ -2,9 +2,12 @@ import json
 import re
 
 import neo4j
-from django.http import HttpResponse
+from django.core.checks import messages
+from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
+from django.urls import reverse
 from neomodel import Q
+from pip._internal.utils import logging
 
 from .utils import (fetch_nodes, fetch_countries, get_suggested_nodes, json_api_call, book_and_author,
                     family_tree_json_api_call, family_tree_normal, family_tree_child, sample_data,
@@ -580,6 +583,7 @@ def get_list(request):
     # context = {'latest_question_list': latest_question_list}
     # print('list_hey')
     # print("get_list")
+
     if request.is_ajax():
 
         # print("ajax correct")
@@ -664,3 +668,18 @@ def _get_node_properties(node):
     # 1.5.x and older have it as `properties`
     else:
         return node.properties
+
+def uploadcsv(request):
+    if "GET" == request.method:
+        return render(request, "about_us.html") #dummy entry for now
+        #return HttpResponseRedirect(reverse("uploadcsv"))
+    try:
+        csv_file = request.FILES["csv_file"]
+        file_data = csv_file.read().decode("utf-8")
+        print(file_data)
+
+    except Exception as e:
+        print(e)
+
+    return render(request, "publication_graph.html") #dummy entry for now
+
